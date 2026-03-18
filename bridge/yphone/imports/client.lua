@@ -1,28 +1,41 @@
+local resourceName = GetCurrentResourceName()
+
 local function AddApp()
     local dataLoaded = exports.yphone:GetDataLoaded()
     while not dataLoaded do
-        Wait(1000)
+        Wait(500)
         dataLoaded = exports.yphone:GetDataLoaded()
     end
 
-    local added, errorMessage = exports.yphone:AddCustomApp({
+    exports.yphone:AddCustomApp({
         key = Config.AppIdentifier,
         name = Config.AppName,
         defaultApp = false,
         icon = {
-            yos = ("https://cfx-nui-%s/ui/icon.png"):format(GetCurrentResourceName()),
-            humanoid = ("https://cfx-nui-%s/ui/icon.png"):format(GetCurrentResourceName()),
+            yos = ("https://cfx-nui-%s/ui/icon.png"):format(resourceName),
+            humanoid = ("https://cfx-nui-%s/ui/icon.png"):format(resourceName),
         },
-        ui = ("https://cfx-nui-%s/ui/dist/index.html"):format(GetCurrentResourceName()),
+        ui = ("https://cfx-nui-%s/ui/dist/index.html"):format(resourceName),
     })
-
-    if not added then
-        print(('Could not add app: %s'):format(tostring(errorMessage)))
-        return
-    end
 
     print('Giga Cred app added (yphone).')
 end
+
+AddEventHandler("onResourceStop", function(resource)
+    if resource == resourceName then
+        exports.yphone:RemoveCustomApp(Config.AppIdentifier)
+    end
+end)
+
+AddEventHandler("onResourceStart", function(resource)
+    if resource == "yphone" then
+        while GetResourceState("yphone") ~= "started" do
+            Wait(500)
+        end
+
+        AddApp()
+    end
+end)
 
 CreateThread(function()
     while GetResourceState("yphone") ~= "started" do
