@@ -54,7 +54,11 @@ lib.callback.register('MakePayment', function(source, amount, paymenttype, vehic
         local success, err = pcall(function()
             Framework.Server.PlayerRemoveMoney(source, amount, "bank")
             if dealership and dealership.type == "owned" then
-                MySQL.update.await("UPDATE dealership_locations SET balance = balance + ? WHERE id = ?", {amount, dealershipID})
+                -- Credit the owned dealership's account through jg-dealerships so its
+                -- in-memory balance cache stays in sync (a raw UPDATE only hits the DB
+                -- and gets clobbered by the next cache save). Requires the
+                -- jg-dealerships:addDealershipBalance export (see README -> Owned Dealership Payments).
+                exports['jg-dealerships']:addDealershipBalance(dealershipID, amount)
             end
 
             if finance_data.payments_complete >= finance_data.total_payments then
@@ -77,7 +81,9 @@ lib.callback.register('MakePayment', function(source, amount, paymenttype, vehic
         local success, err = pcall(function()
             Framework.Server.PlayerRemoveMoney(source, amount, "bank")
             if dealership and dealership.type == "owned" then
-                MySQL.update.await("UPDATE dealership_locations SET balance = balance + ? WHERE id = ?", {amount, dealershipID})
+                -- See installment flow above: route through jg-dealerships so the
+                -- owned dealership balance cache is updated, not just the DB row.
+                exports['jg-dealerships']:addDealershipBalance(dealershipID, amount)
             end
 
             MySQL.update.await("UPDATE "..Framework.VehiclesTable.." SET finance_data = NULL, financed = 0 WHERE "..Framework.PlayerIdentifier.." = ? AND plate = ?", {identifier, plate})

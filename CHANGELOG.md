@@ -12,6 +12,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - GitHub issue templates for bug reports and feature requests.
 - Open-source docs scaffolding (`CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`).
 
+### Fixed
+
+- Owned-dealership finance payments now credit the dealership account through the
+  `jg-dealerships:addDealershipBalance` export instead of a raw `dealership_locations.balance`
+  UPDATE, keeping the dealership's in-memory balance cache in sync (the direct write only hit the
+  DB and could be overwritten by the next cache save, so funds appeared to never arrive).
+  Requires adding the export to `jg-dealerships` — see README → Owned Dealership Payments.
+
 ## [1.0.0] - 2026-02-24
 
 ### Added

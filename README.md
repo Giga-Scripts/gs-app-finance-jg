@@ -62,11 +62,43 @@ Framework resolution happens in `framework.lua` (`Config.Framework` defaults to 
 
 - [jg-dealerships](https://github.com/JoeSzymkowiczFiveworx/jg-dealerships) v2 (required)
   - This resource reads `jg-dealerships` runtime config export in `framework.lua`; outdated versions can break framework/payment settings.
+  - For owned dealerships, this app needs the `addDealershipBalance` server export added to `jg-dealerships` — see [Owned Dealership Payments](#owned-dealership-payments).
 - [ox_lib](https://github.com/overextended/ox_lib) (required)
 - [oxmysql](https://github.com/overextended/oxmysql) (required)
 - One supported phone resource running
 
 > No SQL import is required for this resource.
+
+## Owned Dealership Payments
+
+When a financed vehicle belongs to an **owned** dealership (`dealership_locations.type = 'owned'`), each installment/payoff made through the app must credit that dealership's account.
+
+`jg-dealerships` keeps the dealership balance in an **in-memory cache** and persists it back to the database on its own schedule. Writing the `dealership_locations.balance` column directly therefore does not work reliably — the cache stays stale and can overwrite your update on the next save, so the funds appear to never arrive. The app must credit the balance through `jg-dealerships` itself, using the same code path the showroom purchase uses (`DealershipBalance.Server.Add`).
+
+### Required setup in `jg-dealerships`
+
+`jg-dealerships` does not expose `DealershipBalance` to other resources, so add a small export. The file `server/sv-purchase.lua` is listed in the resource's `escrow_ignore`, so it is safe to edit even on the escrowed build.
+
+Append this to the bottom of `jg-dealerships/server/sv-purchase.lua`:
+
+```lua
+---Credit an owned dealership's balance (used by gs-app-finance-jg).
+---@param dealershipId string
+---@param amount number
+---@return boolean success
+exports("addDealershipBalance", function(dealershipId, amount)
+  if type(dealershipId) ~= "string" then return false end
+  amount = tonumber(amount)
+  if not amount or amount <= 0 then return false end
+
+  DealershipBalance.Server.Add(dealershipId, amount)
+  return true
+end)
+```
+
+Restart `jg-dealerships` after the edit, then `gs-app-finance-jg`. No change is needed in this app's config — `server.lua` calls `exports['jg-dealerships']:addDealershipBalance(...)` automatically for owned dealerships.
+
+> If you skip this step, payments still debit the customer and clear the loan, but the owned dealership account will not be credited (you will see an export-not-found error in the server console).
 
 ## Installation (Quick Start)
 
