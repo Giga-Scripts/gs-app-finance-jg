@@ -4,6 +4,7 @@ import Dashboard from "./components/Dashboard";
 import VehicleDetail from "./components/VehicleDetail";
 import ConfirmationDialog from "./components/ConfirmationDialog";
 import { formatCurrencyAmount } from "./utils/currency";
+import { setPhone17movRouteHandlers } from "./phone17mov";
 
 // Keep this in sync with the resource folder name for NUI callback routing.
 const RESOURCE_NAME = "gs-app-finance-jg";
@@ -133,6 +134,29 @@ const App: React.FC = () => {
 
   const refreshInFlightRef = useRef(false);
   const lastRefreshAtRef = useRef(0);
+
+  // Mirror the current view into a ref so the 17mov_Phone bridge can read it
+  // synchronously when the phone calls window.__dispatchAction("GetCurrentRoute").
+  const selectedPlateRef = useRef(selectedPlate);
+  useEffect(() => {
+    selectedPlateRef.current = selectedPlate;
+  }, [selectedPlate]);
+
+  // Wire the new-template 17mov_Phone route bridge to our view state. The
+  // window-level function is installed early in index.tsx; here we just point
+  // it at the live Dashboard/VehicleDetail navigation.
+  useEffect(() => {
+    setPhone17movRouteHandlers({
+      getCurrentRoute: () =>
+        selectedPlateRef.current
+          ? `/vehicle/${encodeURIComponent(selectedPlateRef.current)}`
+          : "/",
+      navigate: (path) => {
+        const match = /^\/vehicle\/(.+)$/.exec(path);
+        setSelectedPlate(match ? decodeURIComponent(match[1]) : null);
+      },
+    });
+  }, []);
 
   const showNotification = (message: string, type: "success" | "error") => {
     setNotification({ message, type });

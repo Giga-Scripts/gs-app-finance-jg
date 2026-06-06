@@ -12,6 +12,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - GitHub issue templates for bug reports and feature requests.
 - Open-source docs scaffolding (`CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`).
 
+### Fixed
+
+- Compatibility with the updated `17mov_Phone` app template. The new template calls
+  `window.__dispatchAction` inside each external app's iframe; the app now installs that bridge
+  (plus `__externalAppReady` / `setExternalRouting`) at startup, fixing the
+  `__dispatchAction is not a function` error that broke the phone's render. Inert on other phones.
+
 ## [1.0.0] - 2026-02-24
 
 ### Added
