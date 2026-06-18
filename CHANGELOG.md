@@ -15,6 +15,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Fixed
 
+- Compatibility with the updated `17mov_Phone` app template. The new template calls
+  `window.__dispatchAction` inside each external app's iframe; the app now installs that bridge
+  (plus `__externalAppReady` / `setExternalRouting`) at startup, fixing the
+  `__dispatchAction is not a function` error that broke the phone's render. Inert on other phones.
 - Owned-dealership finance payments now credit the dealership account through the
   `jg-dealerships:addDealershipBalance` export instead of a raw `dealership_locations.balance`
   UPDATE, keeping the dealership's in-memory balance cache in sync (the direct write only hit the
