@@ -21,7 +21,10 @@ interface VehicleCardProps {
 }
 
 function VehicleCard({ vehicle, onSelect, formatCurrency, uiStrings }: VehicleCardProps) {
-  const { src: imgSrc, onError: imgOnError } = useVehicleImage(vehicle.rawFinanceData.vehicle);
+  const { src: imgSrc, onError: imgOnError } = useVehicleImage(vehicle.rawFinanceData.vehicle, {
+    image: vehicle.rawRow.vehicle_image,
+    fallbacks: vehicle.rawRow.vehicle_image_fallbacks,
+  });
 
   return (
     <button

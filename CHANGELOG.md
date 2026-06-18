@@ -11,6 +11,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - GitHub issue templates for bug reports and feature requests.
 - Open-source docs scaffolding (`CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`).
+- Vehicle thumbnails via **jg-vehiclestudio** (Lua resolves URLs; UI falls back to JG garages/dealerships PNGs, then GTA docs).
 
 ### Fixed
 

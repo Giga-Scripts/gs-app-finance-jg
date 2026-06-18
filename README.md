@@ -151,9 +151,10 @@ Locale files:
 
 Image fallback chain used by the UI:
 
-1. `https://cfx-nui-jg-advancedgarages/vehicle_images/{spawn}.png`
-2. `https://cfx-nui-jg-dealerships/vehicle_images/{spawn}.png`
-3. `https://docs.fivem.net/vehicles/{spawn}.webp`
+1. **jg-vehiclestudio** (`getImage` / `getImages` via Lua — same image set as jg-dealerships config)
+2. `https://cfx-nui-jg-advancedgarages/vehicle_images/{spawn}.png`
+3. `https://cfx-nui-jg-dealerships/vehicle_images/{spawn}.png`
+4. `https://docs.fivem.net/vehicles/{spawn}.webp`
 
 If all fail, the app uses an internal gradient fallback.
 

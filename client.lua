@@ -57,16 +57,31 @@ local function getVehicleLabel(model)
     return name
 end
 
--- Adds vehicle_label for UI cards using Qbox labels when available.
+-- Adds vehicle_label and jg-vehiclestudio thumbnails for UI cards.
 local function formatFinancedVehicles(fetchedVehicles)
     local formattedVehicles = fetchedVehicles or {}
+    local spawnCodes, seen = {}, {}
 
     for i = 1, #formattedVehicles do
         local vehicle = formattedVehicles[i]
         local financeData = vehicle.finance_data and json.decode(vehicle.finance_data)
-
         local model = financeData and financeData.vehicle or nil
+
         vehicle.vehicle_label = getVehicleLabel(model) or model or locale('vehicle_label_fallback')
+
+        if type(model) == "string" and model ~= "" and not seen[model] then
+            spawnCodes[#spawnCodes + 1] = model
+            seen[model] = true
+        end
+    end
+
+    local batchCache = VehicleImages.buildBatchCache(spawnCodes)
+
+    for i = 1, #formattedVehicles do
+        local vehicle = formattedVehicles[i]
+        local financeData = vehicle.finance_data and json.decode(vehicle.finance_data)
+        local model = financeData and financeData.vehicle or nil
+        VehicleImages.applyFields(vehicle, model, batchCache)
     end
 
     return formattedVehicles

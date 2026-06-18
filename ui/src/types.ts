@@ -3,6 +3,8 @@ export interface RawFinanceRow {
   finance_data: string;
   plate: string;
   vehicle_label: string;
+  vehicle_image?: string | null;
+  vehicle_image_fallbacks?: string[] | null;
 }
 
 /** Parsed finance_data JSON from jg-dealerships */

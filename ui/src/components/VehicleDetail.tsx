@@ -22,7 +22,10 @@ const formatTime = (seconds: number, nowLabel: string): string => {
 
 export default function VehicleDetail({ vehicle, onPayCycle, onSettle, onBack, uiStrings, numberLocale }: VehicleDetailProps) {
   // Hook must be called unconditionally — use vehicle spawn or empty string
-  const { src: imgSrc, onError: imgOnError } = useVehicleImage(vehicle?.rawFinanceData.vehicle);
+  const { src: imgSrc, onError: imgOnError } = useVehicleImage(vehicle?.rawFinanceData.vehicle, {
+    image: vehicle?.rawRow.vehicle_image,
+    fallbacks: vehicle?.rawRow.vehicle_image_fallbacks,
+  });
 
   if (!vehicle) return null;
 
